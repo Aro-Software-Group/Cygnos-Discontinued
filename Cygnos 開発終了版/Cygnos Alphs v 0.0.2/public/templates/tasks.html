@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cygnos - タスク管理</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/task.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body data-theme="light">
+    <div class="app-container">
+        <!-- サイドバー -->
+        <aside class="sidebar">
+            <div class="logo-container">
+                <i class="fas fa-feather-alt logo-icon"></i>
+                <h1>Cygnos</h1>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="/"><i class="fas fa-comment"></i>チャット</a></li>
+                    <li class="active"><a href="/tasks"><i class="fas fa-tasks"></i>タスク</a></li>
+                    <li><a href="/history"><i class="fas fa-history"></i>履歴</a></li>
+                    <li><a href="#settings"><i class="fas fa-cog"></i>設定</a></li>
+                </ul>
+            </nav>
+            <div class="memory-status">
+                <h3>メモリー使用状況</h3>
+                <div class="memory-progress">
+                    <div class="memory-bar" style="width: 35%;"></div>
+                </div>
+                <p>35% 使用中</p>
+            </div>
+            <div class="theme-toggle">
+                <button>
+                    <i class="fas fa-moon"></i>
+                    <span class="tooltip-text">ダークモードに切り替え</span>
+                </button>
+            </div>
+            <div class="copyright-info">
+                <p>&copy; 2024 Cygnos</p>
+            </div>
+        </aside>
+
+        <!-- メインコンテンツ -->
+        <main class="main-content">
+            <!-- モバイルヘッダー -->
+            <div class="mobile-header">
+                <button class="hamburger-menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Cygnos</h1>
+            </div>
+
+            <!-- タスクビュー -->
+            <div class="task-view">
+                <!-- タスクリストセクション -->
+                <section class="task-list-container">
+                    <div class="task-list-header">
+                        <div class="section-title">
+                            <i class="fas fa-tasks"></i>
+                            <h2>タスク一覧</h2>
+                        </div>
+                        <button class="primary-button" id="new-task-btn">
+                            <i class="fas fa-plus"></i>
+                            新規タスク
+                        </button>
+                    </div>
+
+                    <div class="task-filters">
+                        <div class="search-tasks">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="search-tasks" placeholder="タスクを検索...">
+                        </div>
+                        <div class="filter-controls">
+                            <div class="filter-group">
+                                <label for="status-filter">ステータス</label>
+                                <select id="status-filter">
+                                    <option value="all">すべて</option>
+                                    <option value="pending">未着手</option>
+                                    <option value="in-progress">進行中</option>
+                                    <option value="completed">完了</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="priority-filter">優先度</label>
+                                <select id="priority-filter">
+                                    <option value="all">すべて</option>
+                                    <option value="high">高</option>
+                                    <option value="normal">中</option>
+                                    <option value="low">低</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="task-list" id="task-list">
+                        <!-- タスクは動的に追加されます -->
+                    </div>
+
+                    <!-- 空の状態 -->
+                    <div class="empty-state" id="empty-task-state">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h3>タスクがありません</h3>
+                        <p>新しいタスクを作成して、AIアシスタントに作業を依頼しましょう</p>
+                        <button class="primary-button" id="create-first-task">
+                            <i class="fas fa-plus"></i>
+                            最初のタスクを作成
+                        </button>
+                    </div>
+                </section>
+
+                <!-- タスク詳細・チャットセクション -->
+                <section class="task-chat-container">
+                    <div class="chat-header">
+                        <div class="conversation-info">
+                            <h2 id="current-task-title">タスクを選択してください</h2>
+                            <div class="status" id="task-status">
+                                <i class="fas fa-circle"></i>
+                                <span>未選択</span>
+                            </div>
+                        </div>
+                        <div class="controls">
+                            <button class="icon-button" id="edit-task" title="タスクを編集" disabled>
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="icon-button" id="delete-task" title="タスクを削除" disabled>
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="chat-container">
+                        <div class="chat-messages" id="task-chat-messages">
+                            <!-- メッセージは動的に追加されます -->
+                        </div>
+
+                        <div class="chat-input-container">
+                            <div class="input-actions">
+                                <button class="icon-button" id="task-upload-file" title="ファイルを添付">
+                                    <i class="fas fa-paperclip"></i>
+                                </button>
+                                <button class="icon-button" id="task-voice-input" title="音声入力">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                                <button class="icon-button" id="task-web-search" title="Web検索">
+                                    <i class="fas fa-globe"></i>
+                                </button>
+                            </div>
+                            <textarea 
+                                id="task-user-input" 
+                                placeholder="AIアシスタントへメッセージを入力..."
+                                rows="1"
+                                disabled
+                            ></textarea>
+                            <button id="task-send-message" class="send-button" disabled>
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+
+                        <div class="processing-panel">
+                            <div class="panel-header" id="toggle-panel">
+                                <h3><i class="fas fa-cogs"></i> 処理ステータス</h3>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="panel-content" id="process-steps">
+                                <!-- 処理ステップは動的に追加されます -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- タスクモーダル -->
+        <div class="modal" id="task-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modal-title">新規タスク</h3>
+                    <button class="close-modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="task-form" class="task-form">
+                        <input type="hidden" id="task-id">
+                        <div class="form-group">
+                            <label for="task-title">タスク名 *</label>
+                            <input 
+                                type="text" 
+                                id="task-title" 
+                                class="task-form-input" 
+                                required 
+                                placeholder="例: データ分析レポートの作成"
+                            >
+                        </div>
+                        <div class="form-group">
+                            <label for="task-description">説明</label>
+                            <textarea 
+                                id="task-description" 
+                                class="task-form-textarea" 
+                                rows="3" 
+                                placeholder="タスクの詳細を入力してください"
+                            ></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group half">
+                                <label for="task-priority">優先度</label>
+                                <select id="task-priority" class="task-form-select">
+                                    <option value="high">高</option>
+                                    <option value="normal" selected>中</option>
+                                    <option value="low">低</option>
+                                </select>
+                            </div>
+                            <div class="form-group half">
+                                <label for="task-due-date">期限</label>
+                                <input 
+                                    type="date" 
+                                    id="task-due-date" 
+                                    class="task-form-input"
+                                >
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-ai-instructions">AIへの指示</label>
+                            <textarea 
+                                id="task-ai-instructions" 
+                                class="task-form-textarea" 
+                                rows="4" 
+                                placeholder="AIアシスタントへの具体的な指示を入力してください"
+                            ></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="cancel-button" id="cancel-task">
+                        <i class="fas fa-times"></i>
+                        キャンセル
+                    </button>
+                    <button class="primary-button" id="save-task">
+                        <i class="fas fa-check"></i>
+                        保存
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ファイルプレビューモーダル -->
+        <div class="modal" id="file-preview-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>ファイルプレビュー</h3>
+                    <button class="close-modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="file-preview-container"></div>
+                </div>
+                <div class="modal-footer">
+                    <button class="cancel-button close-modal">
+                        <i class="fas fa-times"></i>
+                        キャンセル
+                    </button>
+                    <button class="primary-button" id="confirm-upload">
+                        <i class="fas fa-check"></i>
+                        アップロード
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- スクリプト -->
+    <script src="/js/config.js"></script>
+    <script src="/js/theme-manager.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/ui.js"></script>
+    <script src="/js/processor.js"></script>
+    <script src="/js/memory.js"></script>
+    <script src="/js/task-manager.js"></script>
+    <script src="/js/main.js"></script>
+</body>
+</html>
